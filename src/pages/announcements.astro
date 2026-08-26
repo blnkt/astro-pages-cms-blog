@@ -1,0 +1,232 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Breadcrumbs from "@components/Breadcrumbs.astro";
+import { SITE } from "@config";
+
+const announcements = await Promise.all(
+  (await getCollection("announcements"))
+    .filter(a => !a.data.draft)
+    .sort((a, b) => b.data.pubDatetime.valueOf() - a.data.pubDatetime.valueOf())
+    .map(async announcement => {
+      const { Content } = await announcement.render();
+      return { announcement, Content };
+    })
+);
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+---
+
+<Layout
+  title={`Announcements | ${SITE.title}`}
+  description="Weekly Spirit Machine announcements for choir members."
+>
+  <Header activeNav="announcements" />
+  <Breadcrumbs />
+  <main id="main-content">
+    <h1>Announcements</h1>
+    <p class="page-desc">
+      Weekly updates for members—newest first, all on one page.
+    </p>
+
+    <div
+      id="announcements-gate"
+      class="gate"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gate-title"
+    >
+      <div class="gate-card">
+        <h2 id="gate-title">Members only</h2>
+        <p>
+          Enter the choir password to view weekly announcements. Spacing and
+          capitalization don’t matter.
+        </p>
+        <form id="gate-form" class="gate-form">
+          <label class="sr-only" for="gate-password">Password</label>
+          <input
+            id="gate-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Unlock</button>
+        </form>
+        <p id="gate-error" class="gate-error" hidden>
+          That password doesn’t match.
+        </p>
+      </div>
+    </div>
+
+    <div id="announcements-content" class="announcements-content is-locked">
+      {
+        announcements.length === 0 ? (
+          <p class="empty">No announcements yet.</p>
+        ) : (
+          announcements.map(({ announcement, Content }) => {
+            const anchor = announcement.slug;
+            return (
+              <article class="announcement" id={anchor}>
+                <header class="announcement-header">
+                  <h2>
+                    <a href={`#${anchor}`}>{announcement.data.title}</a>
+                  </h2>
+                  <time datetime={announcement.data.pubDatetime.toISOString()}>
+                    {formatDate(announcement.data.pubDatetime)}
+                  </time>
+                </header>
+                <div class="prose">
+                  <Content />
+                </div>
+              </article>
+            );
+          })
+        )
+      }
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script is:inline>
+  (function () {
+    var STORAGE_KEY = "sm-announcements-unlocked";
+    var EXPECTED = "spiritmachine";
+
+    function normalize(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+    }
+
+    var gate = document.getElementById("announcements-gate");
+    var content = document.getElementById("announcements-content");
+    var form = document.getElementById("gate-form");
+    var input = document.getElementById("gate-password");
+    var error = document.getElementById("gate-error");
+
+    if (!gate || !content || !form || !input || !error) return;
+
+    function unlock() {
+      content.classList.remove("is-locked");
+      content.removeAttribute("aria-hidden");
+      gate.hidden = true;
+      gate.setAttribute("aria-hidden", "true");
+      try {
+        sessionStorage.setItem(STORAGE_KEY, "1");
+      } catch (e) {}
+    }
+
+    function lock() {
+      content.classList.add("is-locked");
+      content.setAttribute("aria-hidden", "true");
+      gate.hidden = false;
+      gate.setAttribute("aria-hidden", "false");
+      input.focus();
+    }
+
+    var alreadyUnlocked = false;
+    try {
+      alreadyUnlocked = sessionStorage.getItem(STORAGE_KEY) === "1";
+    } catch (e) {}
+
+    if (alreadyUnlocked) {
+      unlock();
+    } else {
+      lock();
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (normalize(input.value) === EXPECTED) {
+        error.hidden = true;
+        unlock();
+        return;
+      }
+      error.hidden = false;
+      input.select();
+    });
+  })();
+</script>
+
+<style>
+  #main-content {
+    @apply relative mx-auto w-full max-w-3xl px-4 pb-16;
+  }
+  #main-content h1 {
+    @apply text-2xl font-semibold sm:text-3xl;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .page-desc {
+    @apply mb-10 mt-2 italic opacity-80;
+  }
+  .empty {
+    @apply opacity-80;
+  }
+  .announcements-content.is-locked {
+    @apply pointer-events-none select-none;
+    filter: blur(8px);
+  }
+  .gate {
+    @apply absolute inset-x-4 top-28 z-20 flex justify-center sm:inset-x-0;
+  }
+  .gate[hidden] {
+    display: none !important;
+  }
+  .gate-card {
+    @apply w-full max-w-md rounded border border-skin-line bg-skin-fill p-6 shadow-lg;
+  }
+  .gate-card h2 {
+    @apply mb-2 text-xl font-semibold;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .gate-card p {
+    @apply mb-4 text-sm opacity-80;
+  }
+  .gate-form {
+    @apply flex flex-col gap-3 sm:flex-row;
+  }
+  .gate-form input {
+    @apply w-full flex-1 rounded border border-skin-line bg-skin-card px-3 py-2 text-skin-base;
+  }
+  .gate-form button {
+    @apply rounded bg-skin-accent px-4 py-2 font-medium text-skin-inverted;
+  }
+  .gate-error {
+    @apply mt-3 text-sm text-skin-accent;
+  }
+  .announcement {
+    @apply mb-12 border-b border-skin-line pb-10;
+  }
+  .announcement:last-child {
+    @apply mb-0 border-b-0 pb-0;
+  }
+  .announcement-header {
+    @apply mb-4;
+  }
+  .announcement-header h2 {
+    @apply text-xl font-semibold sm:text-2xl;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .announcement-header h2 a {
+    @apply text-skin-base no-underline hover:text-skin-accent;
+  }
+  .announcement-header time {
+    @apply mt-1 block text-sm opacity-70;
+  }
+  .sr-only {
+    @apply absolute -m-px h-px w-px overflow-hidden whitespace-nowrap border-0 p-0;
+    clip: rect(0, 0, 0, 0);
+  }
+</style>

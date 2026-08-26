@@ -13,6 +13,7 @@ export interface Props {
     | "music"
     | "videos"
     | "calendar"
+    | "announcements"
     | "support"
     | "contact";
 }
@@ -92,6 +93,14 @@ const { activeNav } = Astro.props;
               class={activeNav === "calendar" ? "active" : ""}
             >
               Calendar
+            </a>
+          </li>
+          <li>
+            <a
+              href={withBase("/announcements/")}
+              class={activeNav === "announcements" ? "active" : ""}
+            >
+              Announcements
             </a>
           </li>
           <li>

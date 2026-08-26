@@ -65,4 +65,13 @@ const videos = defineCollection({
   }),
 });
 
-export const collections = { blog, events, music, videos };
+const announcements = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    pubDatetime: z.date(),
+    draft: z.boolean().optional(),
+  }),
+});
+
+export const collections = { blog, events, music, videos, announcements };
