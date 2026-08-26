@@ -9,6 +9,8 @@ import { SITE } from "./src/config";
 // https://astro.build/config
 export default defineConfig({
   site: SITE.website,
+  // Required for project Pages at https://blnkt.github.io/astro-pages-cms-blog/
+  base: "/astro-pages-cms-blog",
   integrations: [
     tailwind({
       applyBaseStyles: false,
