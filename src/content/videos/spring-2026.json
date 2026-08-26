@@ -1,0 +1,27 @@
+{
+  "title": "Spring 2026",
+  "order": 1,
+  "playlistUrl": "https://www.youtube.com/playlist?list=PLB_LJEIN3yQw",
+  "videos": [
+    {
+      "id": "FFv1ON7OgS8",
+      "title": "Like a Ship (Pastor T.L. Barrett)"
+    },
+    {
+      "id": "5qTW_AYyDLw",
+      "title": "The Light Princess (Hazel Ra)"
+    },
+    {
+      "id": "kYPgRdFeDCE",
+      "title": "Ndandihleli (trad. Xhosa)"
+    },
+    {
+      "id": "zaGmUmkzBAk",
+      "title": "This Fall (Big Tree)"
+    },
+    {
+      "id": "3Fj7Qt4K-_s",
+      "title": "Para Transcribir (Lido Pimienta)"
+    }
+  ]
+}

@@ -11,6 +11,7 @@ export interface Props {
     | "about"
     | "search"
     | "music"
+    | "videos"
     | "calendar"
     | "support"
     | "contact";
@@ -75,6 +76,14 @@ const { activeNav } = Astro.props;
               class={activeNav === "music" ? "active" : ""}
             >
               Music
+            </a>
+          </li>
+          <li>
+            <a
+              href={withBase("/videos/")}
+              class={activeNav === "videos" ? "active" : ""}
+            >
+              Videos
             </a>
           </li>
           <li>

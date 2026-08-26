@@ -50,4 +50,19 @@ const music = defineCollection({
   }),
 });
 
-export const collections = { blog, events, music };
+const videos = defineCollection({
+  type: "data",
+  schema: z.object({
+    title: z.string(),
+    order: z.number().default(0),
+    playlistUrl: z.string().url().optional(),
+    videos: z.array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+      })
+    ),
+  }),
+});
+
+export const collections = { blog, events, music, videos };

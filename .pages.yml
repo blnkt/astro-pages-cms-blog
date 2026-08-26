@@ -51,6 +51,24 @@ content:
       - { name: listenUrl, label: Listen URL, type: string }
       - { name: featured, label: Featured, type: boolean }
       - { name: order, label: Order, type: number }
+  - name: videos
+    label: Videos
+    type: collection
+    path: src/content/videos
+    format: json
+    view:
+      fields: [title, order]
+    fields:
+      - { name: title, label: Season title, type: string, required: true }
+      - { name: order, label: Order, type: number }
+      - { name: playlistUrl, label: Playlist URL, type: string }
+      - name: videos
+        label: Videos
+        type: object
+        list: true
+        fields:
+          - { name: id, label: YouTube video ID, type: string, required: true }
+          - { name: title, label: Title, type: string, required: true }
   - name: about
     label: About page
     type: file

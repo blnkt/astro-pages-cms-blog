@@ -1,0 +1,100 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Breadcrumbs from "@components/Breadcrumbs.astro";
+import { SITE } from "@config";
+
+const seasons = (await getCollection("videos")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<Layout
+  title={`Videos | ${SITE.title}`}
+  description="Concert and performance videos from Spirit Machine, organized by season."
+>
+  <Header activeNav="videos" />
+  <Breadcrumbs />
+  <main id="main-content">
+    <h1>Videos</h1>
+    <p class="page-desc">Concert recordings and performances by season.</p>
+
+    {
+      seasons.map(season => (
+        <section class="season" aria-labelledby={`season-${season.id}`}>
+          <div class="season-heading">
+            <h2 id={`season-${season.id}`}>{season.data.title}</h2>
+            {season.data.playlistUrl && (
+              <a
+                class="playlist-link"
+                href={season.data.playlistUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open playlist
+              </a>
+            )}
+          </div>
+          <ul class="video-grid">
+            {season.data.videos.map(video => (
+              <li>
+                <div class="embed">
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${video.id}`}
+                    title={video.title}
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"
+                  />
+                </div>
+                <h3 class="video-title">{video.title}</h3>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  #main-content {
+    @apply mx-auto w-full max-w-6xl px-4 pb-12;
+  }
+  #main-content h1 {
+    @apply text-2xl font-semibold sm:text-3xl;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .page-desc {
+    @apply mb-8 mt-2 italic opacity-80;
+  }
+  .season {
+    @apply mb-12;
+  }
+  .season-heading {
+    @apply mb-5 flex flex-wrap items-baseline justify-between gap-2;
+  }
+  .season-heading h2 {
+    @apply text-xl font-semibold sm:text-2xl;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .playlist-link {
+    @apply text-sm text-skin-accent underline decoration-dashed underline-offset-4;
+  }
+  .video-grid {
+    @apply m-0 grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2;
+  }
+  .embed {
+    @apply relative aspect-video overflow-hidden rounded border border-skin-line bg-skin-card;
+  }
+  .embed iframe {
+    @apply absolute inset-0 h-full w-full border-0;
+  }
+  .video-title {
+    @apply mt-2 text-base font-medium leading-snug;
+  }
+</style>
