@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Spirit Machine">
+  <rect width="1200" height="630" fill="#2d1b4e"/>
+  <rect x="80" y="80" width="470" height="470" rx="24" fill="#c45c26" opacity="0.9"/>
+  <text x="600" y="300" text-anchor="middle" fill="#f5f0fa" font-family="Georgia, serif" font-size="88" font-weight="700">Spirit Machine</text>
+  <text x="600" y="380" text-anchor="middle" fill="#f5f0fa" font-family="system-ui, sans-serif" font-size="36" opacity="0.9">Community choir · Portland, Oregon</text>
+</svg>

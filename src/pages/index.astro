@@ -9,74 +9,141 @@ import Card from "@components/Card";
 import Socials from "@components/Socials.astro";
 import getSortedPosts from "@utils/getSortedPosts";
 import { withBase } from "@utils/path";
-import { SOCIALS } from "@config";
+import { SOCIALS, TAGLINE } from "@config";
 
 const posts = await getCollection("blog");
-
 const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const recentPosts = sortedPosts.slice(0, 3);
+
+const events = (await getCollection("events")).sort(
+  (a, b) => a.data.startDate.valueOf() - b.data.startDate.valueOf()
+);
+const featuredEvent =
+  events.find(e => e.data.featured) ??
+  events.find(e => e.data.startDate.valueOf() >= Date.now()) ??
+  events[0];
+
+const releases = (await getCollection("music")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const featuredRelease = releases.find(r => r.data.featured) ?? releases[0];
 
 const socialCount = SOCIALS.filter(social => social.active).length;
+
+function formatEventDate(date: Date) {
+  return date.toLocaleString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 ---
 
 <Layout>
   <Header />
   <main id="main-content">
     <section id="hero">
-      <h1>Mingalaba</h1>
-      <a
-        target="_blank"
-        href={withBase("/rss.xml")}
-        class="rss-link"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="rss-icon"
-          ><path
-            d="M19 20.001C19 11.729 12.271 5 4 5v2c7.168 0 13 5.832 13 13.001h2z"
-          ></path><path
-            d="M12 20.001h2C14 14.486 9.514 10 4 10v2c4.411 0 8 3.589 8 8.001z"
-          ></path><circle cx="6" cy="18" r="2"></circle>
-        </svg>
-        <span class="sr-only">RSS Feed</span>
-      </a>
-
+      <h1>Spirit Machine</h1>
+      <p class="tagline">{TAGLINE}</p>
       <p>
-        AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro
-        blog theme. This theme follows best practices and provides accessibility
-        out of the box. Light and dark mode are supported by default. Moreover,
-        additional color schemes can also be configured.
-      </p>
-      <p>
-        Read the blog posts or check
-        <LinkButton
-          className="underline decoration-dashed underline-offset-4 hover:text-skin-accent"
-          href="https://github.com/satnaing/astro-paper#readme"
-        >
-          README
-        </LinkButton> for more info.
+        Spirit Machine is a community choir in Portland. We sing an eclectic
+        repertoire of supremely good tunes—from Spanish renaissance and South
+        African folk-hymns to contemporary pop-gospel and original arrangements
+        of Portland-area artists. All experience levels welcome.
       </p>
       {
-        // only display if at least one social link is enabled
         socialCount > 0 && (
           <div class="social-wrapper">
-            <div class="social-links">Social Links:</div>
+            <div class="social-links">Find us:</div>
             <Socials />
           </div>
         )
       }
     </section>
 
-    <Hr />
+    {
+      featuredEvent && (
+        <>
+          <Hr />
+          <section id="up-next">
+            <h2>Up next</h2>
+            <article class="feature-card">
+              <h3>
+                <a href={withBase(`/events/${featuredEvent.slug}/`)}>
+                  {featuredEvent.data.title}
+                </a>
+              </h3>
+              <p class="meta">
+                {formatEventDate(featuredEvent.data.startDate)}
+                {" · "}
+                {featuredEvent.data.venue}
+                {featuredEvent.data.location
+                  ? `, ${featuredEvent.data.location}`
+                  : ""}
+              </p>
+              <p>{featuredEvent.data.summary}</p>
+              <LinkButton href={withBase(`/events/${featuredEvent.slug}/`)}>
+                Event details
+                <svg xmlns="http://www.w3.org/2000/svg">
+                  <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z" />
+                </svg>
+              </LinkButton>
+            </article>
+          </section>
+        </>
+      )
+    }
 
     {
-      featuredPosts.length > 0 && (
+      featuredRelease && (
         <>
-          <section id="featured">
-            <h2>Featured</h2>
+          <Hr />
+          <section id="featured-release">
+            <h2>Featured release</h2>
+            <article class="feature-card release">
+              {featuredRelease.data.coverImage && (
+                <img
+                  src={withBase(featuredRelease.data.coverImage)}
+                  alt=""
+                  width="120"
+                  height="120"
+                />
+              )}
+              <div>
+                <h3>{featuredRelease.data.title}</h3>
+                <p class="meta">
+                  {featuredRelease.data.releaseType} ·{" "}
+                  {featuredRelease.data.year}
+                </p>
+                {featuredRelease.data.listenUrl && (
+                  <LinkButton
+                    href={featuredRelease.data.listenUrl}
+                    className="underline decoration-dashed underline-offset-4"
+                  >
+                    Listen
+                  </LinkButton>
+                )}
+              </div>
+            </article>
+            <p class="more">
+              <LinkButton href={withBase("/music/")}>All music →</LinkButton>
+            </p>
+          </section>
+        </>
+      )
+    }
+
+    {
+      recentPosts.length > 0 && (
+        <>
+          <Hr />
+          <section id="recent-posts">
+            <h2>News</h2>
             <ul>
-              {featuredPosts.map(({ data, slug }) => (
+              {recentPosts.map(({ data, slug }) => (
                 <Card
                   href={withBase(`/posts/${slug}/`)}
                   frontmatter={data}
@@ -84,79 +151,65 @@ const socialCount = SOCIALS.filter(social => social.active).length;
                 />
               ))}
             </ul>
+            <div class="all-posts-btn-wrapper">
+              <LinkButton href={withBase("/posts/")}>
+                All news
+                <svg xmlns="http://www.w3.org/2000/svg">
+                  <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z" />
+                </svg>
+              </LinkButton>
+            </div>
           </section>
-          {recentPosts.length > 0 && <Hr />}
         </>
       )
     }
-
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts">
-          <h2>Recent Posts</h2>
-          <ul>
-            {recentPosts.map(
-              ({ data, slug }, index) =>
-                index < 4 && (
-                  <Card
-                    href={withBase(`/posts/${slug}/`)}
-                    frontmatter={data}
-                    secHeading={false}
-                  />
-                )
-            )}
-          </ul>
-        </section>
-      )
-    }
-
-    <div class="all-posts-btn-wrapper">
-      <LinkButton href={withBase("/posts/")}>
-        All Posts
-        <svg xmlns="http://www.w3.org/2000/svg"
-          ><path
-            d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
-          ></path>
-        </svg>
-      </LinkButton>
-    </div>
   </main>
-
   <Footer />
 </Layout>
 
 <style>
-  /* ===== Hero Section ===== */
+  #main-content {
+    @apply mx-auto w-full max-w-3xl pb-12;
+  }
   #hero {
     @apply pb-6 pt-8;
   }
   #hero h1 {
     @apply my-4 inline-block text-3xl font-bold sm:my-8 sm:text-5xl;
+    font-family: "Fraunces", Georgia, serif;
   }
-  #hero .rss-link {
-    @apply mb-6;
-  }
-  #hero .rss-icon {
-    @apply mb-2 h-6 w-6 scale-110 fill-skin-accent sm:mb-3 sm:scale-125;
-  }
-  #hero p {
-    @apply my-2;
+  .tagline {
+    @apply mb-4 text-lg italic text-skin-base opacity-80;
   }
   .social-wrapper {
-    @apply mt-4 flex flex-col sm:flex-row sm:items-center;
+    @apply mt-4 flex flex-col flex-wrap items-center justify-center sm:flex-row sm:items-center;
   }
   .social-links {
     @apply mb-1 mr-2 whitespace-nowrap sm:mb-0;
   }
-
-  /* ===== Featured & Recent Posts Sections ===== */
-  #featured,
-  #recent-posts {
-    @apply pb-6 pt-12;
-  }
-  #featured h2,
+  #up-next h2,
+  #featured-release h2,
   #recent-posts h2 {
     @apply text-2xl font-semibold tracking-wide;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .feature-card {
+    @apply my-4 rounded border border-skin-line bg-skin-card bg-opacity-40 p-4;
+  }
+  .feature-card h3 {
+    @apply text-xl font-medium text-skin-accent;
+  }
+  .feature-card .meta {
+    @apply my-2 text-sm opacity-80;
+  }
+  .feature-card.release {
+    @apply flex gap-4;
+  }
+  .feature-card.release img {
+    @apply shrink-0 rounded border border-skin-line;
+  }
+  .more {
+    @apply mt-2;
   }
   .all-posts-btn-wrapper {
     @apply my-8 text-center;

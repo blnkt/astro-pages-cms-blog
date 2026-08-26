@@ -1,0 +1,9 @@
+{
+  "title": "Live at Oberlin Park",
+  "releaseType": "Live",
+  "year": 2025,
+  "coverImage": "/assets/cover-live.svg",
+  "listenUrl": "https://example.com/listen/live-oberlin",
+  "featured": false,
+  "order": 2
+}

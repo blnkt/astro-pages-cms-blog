@@ -1,0 +1,85 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Breadcrumbs from "@components/Breadcrumbs.astro";
+import { SITE } from "@config";
+import { withBase } from "@utils/path";
+
+export async function getStaticPaths() {
+  const events = await getCollection("events");
+  return events.map(event => ({
+    params: { slug: event.slug },
+    props: { event },
+  }));
+}
+
+export interface Props {
+  event: CollectionEntry<"events">;
+}
+
+const { event } = Astro.props;
+const { Content } = await event.render();
+const { title, startDate, endDate, venue, location, ticketUrl, summary } =
+  event.data;
+
+function formatEventDate(date: Date) {
+  return date.toLocaleString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+---
+
+<Layout title={`${title} | ${SITE.title}`} description={summary}>
+  <Header activeNav="calendar" />
+  <Breadcrumbs />
+  <main id="main-content">
+    <h1>{title}</h1>
+    <p class="meta">
+      {formatEventDate(startDate)}
+      {endDate && <> – {formatEventDate(endDate)}</>}
+    </p>
+    <p class="venue">
+      {venue}{location ? ` · ${location}` : ""}
+    </p>
+    {
+      ticketUrl && (
+        <p>
+          <a href={ticketUrl} target="_blank" rel="noopener">
+            Tickets
+          </a>
+        </p>
+      )
+    }
+    <article class="prose mt-6">
+      <Content />
+    </article>
+    <p class="back">
+      <a href={withBase("/calendar/")}>← Back to calendar</a>
+    </p>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  #main-content {
+    @apply mx-auto w-full max-w-3xl px-4 pb-12;
+  }
+  #main-content h1 {
+    @apply text-2xl font-semibold sm:text-3xl;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .meta,
+  .venue {
+    @apply mt-2 opacity-80;
+  }
+  .back {
+    @apply mt-10;
+  }
+</style>

@@ -1,0 +1,99 @@
+---
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Main from "@layouts/Main.astro";
+import { SITE, CONTACT_EMAIL, DONATE_URL } from "@config";
+import { withBase } from "@utils/path";
+---
+
+<Layout title={`Donate | ${SITE.title}`}>
+  <Header activeNav="support" />
+  <Main
+    pageTitle="Donate"
+    pageDesc="Membership dues, sliding-scale tuition, and financial support for the Spring 2026 season."
+  >
+    <div class="prose max-w-none">
+      <p>
+        The sliding scale reflects participants’ current economic means and
+        recognizes economic and cultural patterns that have affected access to
+        wealth over time (including BIPOC, trans, and disabled communities,
+        among others).
+      </p>
+      <p>
+        <strong
+          >Everyone is welcome to full choir membership regardless of ability to
+          pay.</strong
+        > If you are motivated to sing and none of these options let you participate
+        without significant financial hardship, please
+        <a href={withBase("/contact/")}>reach out</a> for additional scholarships.
+        We want you here.
+      </p>
+      <p>
+        If you are still deciding, come to the first rehearsal and see before
+        committing.
+      </p>
+    </div>
+
+    <div class="tier-cards">
+      <article class="tier-card" aria-labelledby="tier-supporting">
+        <h3 id="tier-supporting">Supporting</h3>
+        <p class="tier-price">$330</p>
+        <p class="tier-note">Helps fund scholarships and season costs.</p>
+      </article>
+      <article
+        class="tier-card tier-card-featured"
+        aria-labelledby="tier-standard"
+      >
+        <h3 id="tier-standard">Standard</h3>
+        <p class="tier-price">$270+</p>
+        <p class="tier-note">Most members choose this level.</p>
+      </article>
+      <article class="tier-card" aria-labelledby="tier-reduced">
+        <h3 id="tier-reduced">Reduced</h3>
+        <p class="tier-price">$180+</p>
+        <p class="tier-note">Sliding scale for access and equity.</p>
+      </article>
+    </div>
+
+    <p class="donate-cta">
+      <a class="donate-link" href={DONATE_URL} target="_blank" rel="noopener"
+        >Give or pay dues</a
+      >
+      <span class="or">or email</span>
+      <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+    </p>
+  </Main>
+  <Footer />
+</Layout>
+
+<style>
+  .tier-cards {
+    @apply my-8 grid gap-4 sm:grid-cols-3;
+  }
+  .tier-card {
+    @apply rounded border border-skin-line bg-skin-card bg-opacity-50 p-4 text-center;
+  }
+  .tier-card-featured {
+    @apply border-skin-accent;
+  }
+  .tier-card h3 {
+    @apply text-lg font-semibold;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .tier-price {
+    @apply my-2 text-2xl font-bold text-skin-accent;
+  }
+  .tier-note {
+    @apply text-sm opacity-80;
+  }
+  .donate-cta {
+    @apply mt-8 text-center;
+  }
+  .donate-link {
+    @apply inline-block rounded bg-skin-accent px-4 py-2 font-medium text-skin-inverted no-underline;
+  }
+  .or {
+    @apply mx-2 opacity-70;
+  }
+</style>

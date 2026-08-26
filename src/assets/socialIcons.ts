@@ -81,6 +81,18 @@ const socialIcons = {
       <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
       <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
     </svg>`,
+  Spotify: `<svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="icon-tabler"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M8 11.833c3.5 -1 5.5 -.5 7.5 .5"></path>
+      <path d="M8.5 14.833c2.5 -.5 4.5 0 6 .5"></path>
+      <path d="M7.5 8.833c4 -1 6.5 -.5 9 .5"></path>
+    </svg>`,
   WhatsApp: `<svg
       xmlns="http://www.w3.org/2000/svg"
       class="icon-tabler"

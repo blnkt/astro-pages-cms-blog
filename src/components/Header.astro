@@ -5,7 +5,15 @@ import Hr from "./Hr.astro";
 import LinkButton from "./LinkButton.astro";
 
 export interface Props {
-  activeNav?: "posts" | "tags" | "about" | "search";
+  activeNav?:
+    | "posts"
+    | "tags"
+    | "about"
+    | "search"
+    | "music"
+    | "calendar"
+    | "support"
+    | "contact";
 }
 
 const { activeNav } = Astro.props;
@@ -18,14 +26,17 @@ const { activeNav } = Astro.props;
       <a href={withBase("/")} class="logo whitespace-nowrap">
         {
           LOGO_IMAGE.enable ? (
-            <img
-              src={withBase(
-                `/assets/${LOGO_IMAGE.svg ? "logo.svg" : "logo.png"}`
-              )}
-              alt={SITE.title}
-              width={LOGO_IMAGE.width}
-              height={LOGO_IMAGE.height}
-            />
+            <span class="logo-with-text">
+              <img
+                src={withBase(
+                  `/assets/${LOGO_IMAGE.svg ? "logo.svg" : "logo.png"}`
+                )}
+                alt=""
+                width={LOGO_IMAGE.width}
+                height={LOGO_IMAGE.height}
+              />
+              <span>{SITE.title}</span>
+            </span>
           ) : (
             SITE.title
           )
@@ -60,18 +71,18 @@ const { activeNav } = Astro.props;
         <ul id="menu-items" class="display-none sm:flex">
           <li>
             <a
-              href={withBase("/posts/")}
-              class={activeNav === "posts" ? "active" : ""}
+              href={withBase("/music/")}
+              class={activeNav === "music" ? "active" : ""}
             >
-              Posts
+              Music
             </a>
           </li>
           <li>
             <a
-              href={withBase("/tags/")}
-              class={activeNav === "tags" ? "active" : ""}
+              href={withBase("/calendar/")}
+              class={activeNav === "calendar" ? "active" : ""}
             >
-              Tags
+              Calendar
             </a>
           </li>
           <li>
@@ -80,6 +91,22 @@ const { activeNav } = Astro.props;
               class={activeNav === "about" ? "active" : ""}
             >
               About
+            </a>
+          </li>
+          <li>
+            <a
+              href={withBase("/support/")}
+              class={activeNav === "support" ? "active" : ""}
+            >
+              Donate
+            </a>
+          </li>
+          <li>
+            <a
+              href={withBase("/posts/")}
+              class={activeNav === "posts" ? "active" : ""}
+            >
+              News
             </a>
           </li>
           <li>
@@ -140,6 +167,13 @@ const { activeNav } = Astro.props;
   }
   .logo {
     @apply absolute py-1 text-xl font-semibold sm:static sm:text-2xl;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .logo-with-text {
+    @apply flex items-center gap-2;
+  }
+  .logo-with-text img {
+    @apply rounded-full;
   }
   .hamburger-menu {
     @apply self-end p-2 sm:hidden;
@@ -149,13 +183,13 @@ const { activeNav } = Astro.props;
   }
 
   nav {
-    @apply flex w-full flex-col items-center sm:ml-2 sm:flex-row sm:justify-end sm:space-x-4 sm:py-0;
+    @apply flex w-full flex-col items-center sm:ml-2 sm:flex-row sm:justify-end sm:space-x-3 sm:py-0;
   }
   nav ul {
-    @apply mt-4 grid w-44 grid-cols-2 grid-rows-4 gap-x-2 gap-y-2 sm:ml-0 sm:mt-0 sm:w-auto sm:gap-x-5 sm:gap-y-0;
+    @apply mt-4 grid w-44 grid-cols-2 gap-x-2 gap-y-2 sm:ml-0 sm:mt-0 sm:flex sm:w-auto sm:items-center sm:gap-x-3 sm:gap-y-0;
   }
   nav ul li {
-    @apply col-span-2 flex items-center justify-center;
+    @apply col-span-2 flex items-center justify-center sm:col-span-1;
   }
   nav ul li a {
     @apply w-full px-4 py-3 text-center font-medium hover:text-skin-accent sm:my-0 sm:px-2 sm:py-1;

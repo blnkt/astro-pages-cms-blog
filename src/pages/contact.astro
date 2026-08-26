@@ -1,0 +1,26 @@
+---
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Main from "@layouts/Main.astro";
+import { SITE, CONTACT_EMAIL } from "@config";
+---
+
+<Layout title={`Contact | ${SITE.title}`}>
+  <Header activeNav="contact" />
+  <Main
+    pageTitle="Contact"
+    pageDesc="Questions about joining, scholarships, bookings, or media."
+  >
+    <div class="prose max-w-none">
+      <p>
+        Questions about <strong>joining Spirit Machine</strong> (Spring 2026 sign-up,
+        scholarships, or matching pitch), <strong>booking the choir</strong>, or <strong
+          >media inquiries</strong
+        >? Email us at
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+      </p>
+    </div>
+  </Main>
+  <Footer />
+</Layout>

@@ -3,34 +3,18 @@ layout: ../layouts/AboutLayout.astro
 title: "About"
 ---
 
-AstroPaper is a minimal, responsive and SEO-friendly Astro blog theme. I designed and crafted this based on [my personal blog](https://satnaing.dev/blog).
+Spirit Machine is a community choir dedicated to having a great time by working hard and making great music. We sing an eclectic repertoire of supremely good tunes. Our last concert featured music from the Spanish renaissance, local indie songwriters, contemporary pop-gospel, and a South African folk-hymn. We are especially excited to continue and expand our arrangements of original music by Portland-area artists and bands.
 
-This theme is aimed to be accessible out of the box. Light and dark mode are supported by
-default and additional color schemes can also be configured.
+## Joining
 
-This theme is self-documented \_ which means articles/posts in this theme can also be considered as documentations. So, see the documentation for more info.
+We welcome singers of all experience levels. The only requirements are your presence and commitment—and being ready to party (just saying). There is no audition. Being able to match pitch reasonably well is important; if that is a challenge for you, [get in touch](../contact/) so we can make a plan to support your growth. You have a beautiful voice.
 
-<div>
-  <img src="/astro-pages-cms-blog/assets/dev.svg" class="sm:w-1/2 mx-auto" alt="coding dev illustration">
-</div>
+We expect members to attend all rehearsals and the performance, with a maximum of three absences allowed per season. If you are considering joining, you are welcome to come to the first rehearsal and see how it feels before committing.
 
-## Tech Stack
+## Rehearsals
 
-This theme is written in vanilla JavaScript (+ TypeScript for type checking) and a little bit of ReactJS for some interactions. TailwindCSS is used for styling; and Markdown is used for blog contents.
+Spring 2026 rehearsals are **Thursday evenings, 6:30–8:15 pm**, in the Annex Room (bottom floor) at **Taborspace** in SE Portland. See [News](../posts/) for the full schedule and [Calendar](../calendar/) for performances and gatherings.
 
-## Features
+## Membership
 
-Here are certain features of this site.
-
-- fully responsive and accessible
-- SEO-friendly
-- light & dark mode
-- fuzzy search
-- super fast performance
-- draft posts
-- pagination
-- sitemap & rss feed
-- highly customizable
-
-If you like this theme, you can star/contribute to the [repo](https://github.com/satnaing/astro-paper).  
-Or you can even give any feedback via my [email](mailto:contact@satnaing.dev).
+Tuition is offered on a tiered sliding scale ($180–$330), due by February 1st (installments available on request). Everyone is welcome regardless of ability to pay—see our [Donate](../support/) page for details and scholarship information.

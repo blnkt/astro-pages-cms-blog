@@ -1,0 +1,85 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Main from "@layouts/Main.astro";
+import { SITE } from "@config";
+import { withBase } from "@utils/path";
+
+const releases = (await getCollection("music")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<Layout title={`Music | ${SITE.title}`}>
+  <Header activeNav="music" />
+  <Main
+    pageTitle="Music"
+    pageDesc="Live and studio recordings from Spirit Machine."
+  >
+    <ul class="release-grid">
+      {
+        releases.map(release => (
+          <li class="release-card">
+            {release.data.coverImage ? (
+              <img
+                src={withBase(release.data.coverImage)}
+                alt=""
+                width="160"
+                height="160"
+              />
+            ) : (
+              <div class="cover-placeholder" aria-hidden="true">
+                {release.data.title.slice(0, 1)}
+              </div>
+            )}
+            <h2>{release.data.title}</h2>
+            <p class="meta">
+              {release.data.releaseType} · {release.data.year}
+            </p>
+            {release.data.listenUrl && (
+              <a
+                href={release.data.listenUrl}
+                target="_blank"
+                rel="noopener"
+                class="listen"
+              >
+                Listen
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </Main>
+  <Footer />
+</Layout>
+
+<style>
+  .release-grid {
+    @apply grid list-none gap-6 p-0 sm:grid-cols-2;
+  }
+  .release-card {
+    @apply rounded border border-skin-line bg-skin-card bg-opacity-40 p-4;
+  }
+  .release-card img,
+  .cover-placeholder {
+    @apply mb-3 aspect-square w-full rounded border border-skin-line object-cover;
+  }
+  .cover-placeholder {
+    @apply flex items-center justify-center bg-skin-card text-4xl font-bold text-skin-accent;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .release-card h2 {
+    @apply text-lg font-semibold;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .meta {
+    @apply my-1 text-sm opacity-80 !important;
+    font-style: normal !important;
+  }
+  .listen {
+    @apply text-skin-accent underline decoration-dashed underline-offset-4;
+  }
+</style>

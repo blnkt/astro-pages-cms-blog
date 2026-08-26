@@ -3,28 +3,69 @@ media:
   output: /
 content:
   - name: posts
-    label: Posts
+    label: News
     type: collection
     path: src/content/blog
     view:
-      fields: [ title, draft, date ]
+      fields: [title, draft, date]
     fields:
       - { name: author, label: Author, type: string }
-      - { name: pubDatetime, label: Date, type: date }
-      - { name: modDatetime, label: Date, type: date }
+      - { name: pubDatetime, label: Date, type: date, required: true }
+      - { name: modDatetime, label: Updated, type: date }
       - { name: title, label: Title, type: string, required: true }
-      - { name: ogImage, label: Title, type: string }
+      - { name: ogImage, label: OG image, type: string }
       - { name: slug, label: Slug, type: string }
       - { name: featured, label: Featured, type: boolean }
       - { name: draft, label: Draft, type: boolean }
       - { name: tags, label: Tags, type: string, list: true }
-      - { name: description, label: Description, type: string }
+      - { name: description, label: Description, type: string, required: true }
       - { name: body, label: Body, type: rich-text }
+  - name: events
+    label: Events
+    type: collection
+    path: src/content/events
+    view:
+      fields: [title, startDate]
+    fields:
+      - { name: title, label: Title, type: string, required: true }
+      - { name: startDate, label: Start, type: date, required: true }
+      - { name: endDate, label: End, type: date }
+      - { name: venue, label: Venue, type: string, required: true }
+      - { name: location, label: Location, type: string }
+      - { name: ticketUrl, label: Ticket URL, type: string }
+      - { name: featured, label: Featured, type: boolean }
+      - { name: summary, label: Summary, type: string, required: true }
+      - { name: body, label: Body, type: rich-text }
+  - name: music
+    label: Music
+    type: collection
+    path: src/content/music
+    format: json
+    view:
+      fields: [title, year]
+    fields:
+      - { name: title, label: Title, type: string, required: true }
+      - { name: releaseType, label: Type, type: string, required: true }
+      - { name: year, label: Year, type: number, required: true }
+      - { name: coverImage, label: Cover image path, type: string }
+      - { name: listenUrl, label: Listen URL, type: string }
+      - { name: featured, label: Featured, type: boolean }
+      - { name: order, label: Order, type: number }
   - name: about
     label: About page
     type: file
     path: src/pages/about.md
     fields:
-      - { name: layout, type: string, hidden: true, default: "../layouts/AboutLayout.astro" }
+      - {
+          name: layout,
+          type: string,
+          hidden: true,
+          default: "../layouts/AboutLayout.astro",
+        }
       - { name: title, label: Title, type: string }
-      - { name: body, label: Body, type: rich-text, options: { input: public/assets, output: /assets } }
+      - {
+          name: body,
+          label: Body,
+          type: rich-text,
+          options: { input: public/assets, output: /assets },
+        }

@@ -1,0 +1,106 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Main from "@layouts/Main.astro";
+import { SITE } from "@config";
+import { withBase } from "@utils/path";
+
+const events = (await getCollection("events")).sort(
+  (a, b) => a.data.startDate.valueOf() - b.data.startDate.valueOf()
+);
+
+const now = Date.now();
+const upcoming = events.filter(e => e.data.startDate.valueOf() >= now);
+const past = events
+  .filter(e => e.data.startDate.valueOf() < now)
+  .sort((a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf());
+
+function formatEventDate(date: Date) {
+  return date.toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+---
+
+<Layout title={`Calendar | ${SITE.title}`}>
+  <Header activeNav="calendar" />
+  <Main
+    pageTitle="Calendar"
+    pageDesc="Upcoming performances, rehearsals, and gatherings."
+  >
+    {
+      upcoming.length > 0 ? (
+        <section class="event-section">
+          <h2>Upcoming</h2>
+          <ul>
+            {upcoming.map(event => (
+              <li class="event-item">
+                <a href={withBase(`/events/${event.slug}/`)}>
+                  <h3>{event.data.title}</h3>
+                </a>
+                <p class="meta">
+                  {formatEventDate(event.data.startDate)} · {event.data.venue}
+                </p>
+                <p>{event.data.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <p class="empty">No upcoming events posted yet.</p>
+      )
+    }
+
+    {
+      past.length > 0 && (
+        <section class="event-section">
+          <h2>Past</h2>
+          <ul>
+            {past.map(event => (
+              <li class="event-item">
+                <a href={withBase(`/events/${event.slug}/`)}>
+                  <h3>{event.data.title}</h3>
+                </a>
+                <p class="meta">
+                  {formatEventDate(event.data.startDate)} · {event.data.venue}
+                </p>
+                <p>{event.data.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </Main>
+  <Footer />
+</Layout>
+
+<style>
+  .event-section {
+    @apply mb-10;
+  }
+  .event-section h2 {
+    @apply mb-4 text-xl font-semibold;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .event-item {
+    @apply mb-6 border-b border-skin-line pb-4;
+  }
+  .event-item h3 {
+    @apply text-lg font-medium text-skin-accent hover:underline;
+  }
+  .meta {
+    @apply my-1 text-sm opacity-80 !important;
+    font-style: normal !important;
+  }
+  .empty {
+    @apply opacity-80;
+  }
+</style>
