@@ -13,6 +13,8 @@ export const SITE: Site = {
 
 export const CONTACT_EMAIL = "hello@spiritmachine.example";
 export const DONATE_URL = "https://example.com/donate";
+/** Build-time soft-lock password for member-only pages (normalized client-side). */
+export const MEMBER_SOFT_LOCK_PASSWORD = "spiritmachine";
 export const TAGLINE =
   "A community choir dedicated to working hard, making great music, and having a great time";
 

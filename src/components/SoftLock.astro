@@ -1,0 +1,317 @@
+---
+/**
+ * Soft-locks slotted HTML: encrypts at build time, decrypts in the browser.
+ * The `password` prop is build-time only and is never sent to the client.
+ *
+ * Usage:
+ * <SoftLock password={SECRET} storageKey="sm-announcements">
+ *   ...html content...
+ * </SoftLock>
+ */
+import { encryptSoftLock } from "@utils/softLock";
+
+export interface Props {
+  /** Build-time secret used to encrypt slotted HTML. Never serialized to the client. */
+  password: string;
+  /** sessionStorage key used to remember the normalized password for this lock. */
+  storageKey: string;
+  title?: string;
+  hint?: string;
+  errorMessage?: string;
+}
+
+const {
+  password,
+  storageKey,
+  title = "Members only",
+  hint = "Enter the password to continue. Spacing and capitalization don’t matter.",
+  errorMessage = "That password doesn’t match.",
+} = Astro.props;
+
+const plaintext = await Astro.slots.render("default");
+const payload = await encryptSoftLock(plaintext, password);
+const payloadJson = JSON.stringify(payload);
+const uid = `soft-lock-${Math.random().toString(36).slice(2, 10)}`;
+---
+
+<div
+  class="soft-lock"
+  data-soft-lock
+  data-storage-key={storageKey}
+  data-uid={uid}
+>
+  <div
+    class="soft-lock-gate"
+    data-soft-lock-gate
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby={`${uid}-title`}
+  >
+    <div class="soft-lock-card">
+      <h2 id={`${uid}-title`}>{title}</h2>
+      <p>{hint}</p>
+      <form class="soft-lock-form" data-soft-lock-form>
+        <label class="sr-only" for={`${uid}-password`}>Password</label>
+        <input
+          id={`${uid}-password`}
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Password"
+          required
+          data-soft-lock-input
+        />
+        <button type="submit">Unlock</button>
+      </form>
+      <p class="soft-lock-error" data-soft-lock-error hidden>{errorMessage}</p>
+    </div>
+  </div>
+
+  <div
+    class="soft-lock-content is-locked"
+    data-soft-lock-content
+    aria-hidden="true"
+  >
+    <div
+      class="soft-lock-placeholder"
+      aria-hidden="true"
+      data-soft-lock-placeholder
+    >
+      <article class="soft-lock-ph-block">
+        <div class="soft-lock-ph-title"></div>
+        <div class="soft-lock-ph-meta"></div>
+        <div class="soft-lock-ph-line"></div>
+        <div class="soft-lock-ph-line"></div>
+        <div class="soft-lock-ph-line short"></div>
+      </article>
+      <article class="soft-lock-ph-block">
+        <div class="soft-lock-ph-title"></div>
+        <div class="soft-lock-ph-meta"></div>
+        <div class="soft-lock-ph-line"></div>
+        <div class="soft-lock-ph-line"></div>
+        <div class="soft-lock-ph-line"></div>
+        <div class="soft-lock-ph-line short"></div>
+      </article>
+      <article class="soft-lock-ph-block">
+        <div class="soft-lock-ph-title"></div>
+        <div class="soft-lock-ph-meta"></div>
+        <div class="soft-lock-ph-line"></div>
+        <div class="soft-lock-ph-line short"></div>
+      </article>
+    </div>
+  </div>
+
+  <script
+    type="application/json"
+    data-soft-lock-payload
+    set:html={payloadJson}
+  />
+</div>
+
+<script>
+  import {
+    decryptSoftLock,
+    normalizePassword,
+    parseSoftLockPayload,
+  } from "@utils/softLock";
+
+  function initSoftLocks() {
+    document.querySelectorAll<HTMLElement>("[data-soft-lock]").forEach(root => {
+      if (root.dataset.ready === "1") return;
+      root.dataset.ready = "1";
+
+      const storageKey = root.dataset.storageKey;
+      const gate = root.querySelector<HTMLElement>("[data-soft-lock-gate]");
+      const content = root.querySelector<HTMLElement>(
+        "[data-soft-lock-content]"
+      );
+      const form = root.querySelector<HTMLFormElement>("[data-soft-lock-form]");
+      const input = root.querySelector<HTMLInputElement>(
+        "[data-soft-lock-input]"
+      );
+      const error = root.querySelector<HTMLElement>("[data-soft-lock-error]");
+      const payloadNode = root.querySelector<HTMLScriptElement>(
+        "[data-soft-lock-payload]"
+      );
+      const placeholder = root.querySelector<HTMLElement>(
+        "[data-soft-lock-placeholder]"
+      );
+
+      if (
+        !storageKey ||
+        !gate ||
+        !content ||
+        !form ||
+        !input ||
+        !error ||
+        !payloadNode?.textContent ||
+        !placeholder
+      ) {
+        return;
+      }
+
+      const placeholderHtml = placeholder.outerHTML;
+
+      let payload;
+      try {
+        payload = parseSoftLockPayload(payloadNode.textContent);
+      } catch {
+        error.hidden = false;
+        error.textContent = "Unable to load protected content.";
+        return;
+      }
+
+      const showGate = () => {
+        content.classList.add("is-locked");
+        content.classList.remove("is-revealing");
+        content.setAttribute("aria-hidden", "true");
+        content.innerHTML = placeholderHtml;
+        gate.hidden = false;
+        gate.setAttribute("aria-hidden", "false");
+      };
+
+      const reveal = (html: string, animate: boolean) => {
+        // Keep blur while swapping placeholder → real content, then unveil.
+        content.classList.add("is-locked");
+        content.innerHTML = html;
+        gate.hidden = true;
+        gate.setAttribute("aria-hidden", "true");
+        error.hidden = true;
+
+        const clearLock = () => {
+          content.classList.remove("is-locked", "is-revealing");
+          content.removeAttribute("aria-hidden");
+        };
+
+        if (!animate) {
+          clearLock();
+          return;
+        }
+
+        content.classList.add("is-revealing");
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            content.classList.remove("is-locked");
+            window.setTimeout(clearLock, 320);
+          });
+        });
+      };
+
+      const tryUnlock = async (password: string, animate: boolean) => {
+        const html = await decryptSoftLock(payload, password);
+        reveal(html, animate);
+        try {
+          sessionStorage.setItem(storageKey, normalizePassword(password));
+        } catch {
+          // ignore storage failures
+        }
+      };
+
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        error.hidden = true;
+        try {
+          await tryUnlock(input.value, true);
+        } catch {
+          error.hidden = false;
+          input.select();
+        }
+      });
+
+      let remembered = "";
+      try {
+        remembered = sessionStorage.getItem(storageKey) || "";
+      } catch {
+        remembered = "";
+      }
+
+      if (remembered) {
+        // Returning visitors: show content immediately (still soft-locked by crypto).
+        tryUnlock(remembered, false).catch(() => {
+          try {
+            sessionStorage.removeItem(storageKey);
+          } catch {
+            // ignore
+          }
+          showGate();
+          input.focus();
+        });
+      } else {
+        showGate();
+      }
+    });
+  }
+
+  initSoftLocks();
+  document.addEventListener("astro:page-load", initSoftLocks);
+</script>
+
+<style>
+  .soft-lock {
+    @apply relative;
+  }
+  .soft-lock-gate {
+    @apply absolute inset-x-0 top-4 z-20 flex justify-center;
+  }
+  .soft-lock-gate[hidden] {
+    display: none !important;
+  }
+  .soft-lock-card {
+    @apply w-full max-w-md rounded border border-skin-line bg-skin-fill p-6 shadow-lg;
+  }
+  .soft-lock-card h2 {
+    @apply mb-2 text-xl font-semibold;
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .soft-lock-card > p {
+    @apply mb-4 text-sm opacity-80;
+  }
+  .soft-lock-form {
+    @apply flex flex-col gap-3 sm:flex-row;
+  }
+  .soft-lock-form input {
+    @apply w-full flex-1 rounded border border-skin-line bg-skin-card px-3 py-2 text-skin-base;
+  }
+  .soft-lock-form button {
+    @apply rounded bg-skin-accent px-4 py-2 font-medium text-skin-inverted;
+  }
+  .soft-lock-error {
+    @apply mt-3 text-sm text-skin-accent;
+  }
+  .soft-lock-content {
+    filter: blur(0);
+    transition: filter 0.3s ease;
+  }
+  .soft-lock-content.is-locked {
+    @apply pointer-events-none min-h-[18rem] select-none;
+    filter: blur(9px);
+  }
+  .soft-lock-content.is-revealing {
+    @apply pointer-events-none;
+  }
+  .soft-lock-placeholder {
+    @apply space-y-10 py-1;
+  }
+  .soft-lock-ph-block {
+    @apply space-y-3 border-b border-skin-line pb-10;
+  }
+  .soft-lock-ph-block:last-child {
+    @apply border-b-0 pb-0;
+  }
+  .soft-lock-ph-title {
+    @apply h-7 w-4/5 rounded bg-skin-card;
+  }
+  .soft-lock-ph-meta {
+    @apply h-3 w-2/5 rounded bg-skin-card opacity-70;
+  }
+  .soft-lock-ph-line {
+    @apply h-3.5 w-full rounded bg-skin-card;
+  }
+  .soft-lock-ph-line.short {
+    @apply w-3/5;
+  }
+  .sr-only {
+    @apply absolute -m-px h-px w-px overflow-hidden whitespace-nowrap border-0 p-0;
+    clip: rect(0, 0, 0, 0);
+  }
+</style>
