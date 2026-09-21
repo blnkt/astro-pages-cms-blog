@@ -6,7 +6,7 @@ import Footer from "@components/Footer.astro";
 import Breadcrumbs from "@components/Breadcrumbs.astro";
 import SoftLock from "@components/SoftLock.astro";
 import { MEMBER_SOFT_LOCK_PASSWORD, SITE } from "@config";
-import communityBulletin from "../data/community-bulletin.txt?raw";
+import communityBulletin from "../data/community-bulletin.html?raw";
 
 const announcements = await Promise.all(
   (await getCollection("announcements"))
@@ -54,7 +54,7 @@ function formatDate(date: Date) {
             <header class="announcement-header">
               <h2>Community Bulletin</h2>
             </header>
-            <pre class="bulletin-body">{bulletin}</pre>
+            <div class="bulletin-body" set:html={bulletin} />
           </article>
         ) : (
           <p class="empty">No bulletin content yet.</p>
@@ -108,7 +108,16 @@ function formatDate(date: Date) {
     @apply opacity-80;
   }
   .bulletin-body {
-    @apply m-0 whitespace-pre-wrap break-words font-body text-base leading-relaxed;
+    @apply text-base leading-relaxed;
+  }
+  .bulletin-body :global(p) {
+    @apply my-3;
+  }
+  .bulletin-body :global(img) {
+    @apply my-4 h-auto max-w-full rounded border border-skin-line;
+  }
+  .bulletin-body :global(a) {
+    @apply text-skin-accent underline decoration-dashed underline-offset-4;
   }
   .section-title {
     @apply mb-6 mt-12 text-xl font-semibold;

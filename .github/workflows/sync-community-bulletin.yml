@@ -24,8 +24,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - name: Export Google Doc
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Export Google Doc HTML and images
         env:
           COMMUNITY_BULLETIN_DOC_ID: 1BFpISLhWO9p_By424dsPlaHQvFm7mebjH7tGnjMigjA
         run: node scripts/sync-community-bulletin.mjs
@@ -34,6 +38,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Sync community bulletin from Google Doc"
-          file_pattern: src/data/community-bulletin.txt
+          file_pattern: src/data/community-bulletin.html public/bulletin-media src/data/community-bulletin.txt
           commit_user_name: github-actions[bot]
           commit_user_email: github-actions[bot]@users.noreply.github.com
