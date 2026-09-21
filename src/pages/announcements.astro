@@ -6,6 +6,7 @@ import Footer from "@components/Footer.astro";
 import Breadcrumbs from "@components/Breadcrumbs.astro";
 import SoftLock from "@components/SoftLock.astro";
 import { MEMBER_SOFT_LOCK_PASSWORD, SITE } from "@config";
+import communityBulletin from "../data/community-bulletin.txt?raw";
 
 const announcements = await Promise.all(
   (await getCollection("announcements"))
@@ -16,6 +17,8 @@ const announcements = await Promise.all(
       return { announcement, Content };
     })
 );
+
+const bulletin = communityBulletin.trim();
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-US", {
@@ -29,44 +32,60 @@ function formatDate(date: Date) {
 
 <Layout
   title={`Announcements | ${SITE.title}`}
-  description="Weekly Spirit Machine announcements for choir members."
+  description="Spirit Machine community bulletin and member announcements."
 >
   <Header activeNav="announcements" />
   <Breadcrumbs />
   <main id="main-content">
     <h1>Announcements</h1>
     <p class="page-desc">
-      Weekly updates for members—newest first, all on one page.
+      Community bulletin synced from the shared Google Doc—members only.
     </p>
 
     <SoftLock
       password={MEMBER_SOFT_LOCK_PASSWORD}
       storageKey="sm-announcements-soft-lock"
       title="Members only"
-      hint="Enter the choir password to view weekly announcements. Spacing and capitalization don’t matter."
+      hint="Enter the choir password to view the community bulletin. Spacing and capitalization don’t matter."
     >
       {
-        announcements.length === 0 ? (
-          <p class="empty">No announcements yet.</p>
+        bulletin ? (
+          <article class="bulletin">
+            <header class="announcement-header">
+              <h2>Community Bulletin</h2>
+            </header>
+            <pre class="bulletin-body">{bulletin}</pre>
+          </article>
         ) : (
-          announcements.map(({ announcement, Content }) => {
-            const anchor = announcement.slug;
-            return (
-              <article class="announcement" id={anchor}>
-                <header class="announcement-header">
-                  <h2>
-                    <a href={`#${anchor}`}>{announcement.data.title}</a>
-                  </h2>
-                  <time datetime={announcement.data.pubDatetime.toISOString()}>
-                    {formatDate(announcement.data.pubDatetime)}
-                  </time>
-                </header>
-                <div class="prose">
-                  <Content />
-                </div>
-              </article>
-            );
-          })
+          <p class="empty">No bulletin content yet.</p>
+        )
+      }
+
+      {
+        announcements.length > 0 && (
+          <section class="extra-announcements">
+            <h2 class="section-title">Notes</h2>
+            {announcements.map(({ announcement, Content }) => {
+              const anchor = announcement.slug;
+              return (
+                <article class="announcement" id={anchor}>
+                  <header class="announcement-header">
+                    <h2>
+                      <a href={`#${anchor}`}>{announcement.data.title}</a>
+                    </h2>
+                    <time
+                      datetime={announcement.data.pubDatetime.toISOString()}
+                    >
+                      {formatDate(announcement.data.pubDatetime)}
+                    </time>
+                  </header>
+                  <div class="prose">
+                    <Content />
+                  </div>
+                </article>
+              );
+            })}
+          </section>
         )
       }
     </SoftLock>
@@ -87,6 +106,13 @@ function formatDate(date: Date) {
   }
   .empty {
     @apply opacity-80;
+  }
+  .bulletin-body {
+    @apply m-0 whitespace-pre-wrap break-words font-body text-base leading-relaxed;
+  }
+  .section-title {
+    @apply mb-6 mt-12 text-xl font-semibold;
+    font-family: "Fraunces", Georgia, serif;
   }
   .announcement {
     @apply mb-12 border-b border-skin-line pb-10;

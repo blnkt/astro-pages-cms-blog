@@ -15,6 +15,9 @@ export const CONTACT_EMAIL = "hello@spiritmachine.example";
 export const DONATE_URL = "https://example.com/donate";
 /** Build-time soft-lock password for member-only pages (normalized client-side). */
 export const MEMBER_SOFT_LOCK_PASSWORD = "spiritmachine";
+/** Public Google Doc ID for the community bulletin sync Action. */
+export const COMMUNITY_BULLETIN_DOC_ID =
+  "1BFpISLhWO9p_By424dsPlaHQvFm7mebjH7tGnjMigjA";
 export const TAGLINE =
   "A community choir dedicated to working hard, making great music, and having a great time";
 

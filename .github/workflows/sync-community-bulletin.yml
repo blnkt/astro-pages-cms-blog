@@ -1,0 +1,39 @@
+name: Sync community bulletin
+
+on:
+  schedule:
+    # Every 6 hours
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-community-bulletin
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Export Google Doc
+        env:
+          COMMUNITY_BULLETIN_DOC_ID: 1BFpISLhWO9p_By424dsPlaHQvFm7mebjH7tGnjMigjA
+        run: node scripts/sync-community-bulletin.mjs
+
+      - name: Commit if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Sync community bulletin from Google Doc"
+          file_pattern: src/data/community-bulletin.txt
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
